@@ -3,7 +3,7 @@ const { CommandHandler } = require('API2_MessageProcessor');
 var commandhandler = new CommandHandler();
 
 commandhandler.register(command => command
-  .setName('안녕')
+  .setName('안녕', 'ㅎㅇ')
   .setDescription("인사합니다.")
   .setUsage('/인사 <따라할 말>')
   .setStaffOnly(false)
