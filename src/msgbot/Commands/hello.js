@@ -1,5 +1,5 @@
 // ANCHOR msgbot/Commands/example.js
-const { CommandHandler } = require('API2_MessageProcessor');
+const { CommandHandler } = require('/sdcard/msgbot/global_modules/CommandHandler');
 var commandhandler = new CommandHandler();
 
 commandhandler.register(command => command

@@ -1,12 +1,12 @@
 const bot = BotManager.getCurrentBot();
-const MessageProcessor = require('API2_MessageProcessor');
+const MessageProcessor = require('CommandHandler');
 
 var commandhandler = new MessageProcessor.CommandHandler();
 commandhandler.set({
   commandsDir: 'msgbot/Commands'
 });
 
-function onCommand(msg) {
+function onMessage(msg) {
   var message = new MessageProcessor.Message(msg)
     .setStaff(msg => msg.author.name == '합동')
     .setCommandPrefix('/', true)
@@ -26,5 +26,4 @@ function onCommand(msg) {
     }
   }
 }
-bot.setCommandPrefix('/');
-bot.addListener(Event.COMMAND, onCommand);
+bot.addListener(Event.MESSAGE, onMessage);

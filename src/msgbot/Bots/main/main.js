@@ -1,1 +1,0 @@
-a = require("../../Commands/command_file_example")

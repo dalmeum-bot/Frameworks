@@ -77,11 +77,6 @@ Command.prototype =
 		return this;
 	},
 
-	/**
-	 * @addArgument 하위 명령어를 추가합니다.
-	 * @param {String | RegExp} name
-	 * @param {Object | Command} func
-	 */
 	addArgument(name, func)
 	{
 		const inthis = func(new Command()
@@ -94,19 +89,26 @@ Command.prototype =
 		);
 
 		inthis.type = (name.constructor.name == "Function") ? name : name.constructor;
+		// NOTE type가 RegExp면 좀 곤란하지 않나... 나중에 inthis.type(arg) 할거거든? 아닌가?
 		
-		inthis.name = (name.constructor.name == "Function") ?
-									(name.name == "String") ? /\S+/ : (name.name == "Number") ? /[+-]?\d+(?:\.\d+)?/ : name.name : name;
+		switch (name) {
+			case String: inthis.name = /(\S+)/; break;
+			case Number: inthis.name = /([+-]?\d+(?:\.\d+)?)/; break;
+			case Array: inthis.name = /([+-]?[a-zA-Zㄱ-힣0-9]+)(?:,([+-]?[a-zA-Zㄱ-힣0-9]+))*/; break; // TODO 각 요소 그룹화, 지금은 맨 앞/뒤만 그룹됨
+			default: inthis.name = (name.constructor.name == "Function") ? name.name : name.toString();
+		}
+
+		/* NOTE
+		이거 정규식이랑 arg랑 전부 매치되어야함, 일부만 매치되면 의미 없다 그거
+		대강 RegExp.test(arg) 말고, arg.match(RegExp)[0] == arg 로 전부 매치되는지 확인하면 될듯
+		RegExp.exec 같은 다른 함수들도 좀 찾아보셈
+		*/
 
 		this.arguments.push(inthis);
 
 		return this;
 	},
 
-	/**
-	 * @missing 인자가 없을 때 실행됨
-	 * @param {Any} item
-	 */
 	missing(item)
 	{
 		this.arguments.push({
@@ -118,10 +120,6 @@ Command.prototype =
 		return this;
 	},
 
-	/**
-	 * @execute call할 때 실행됨
-	 * @param {Any} item
-	 */
 	execute(item)
 	{
 		this.arguments.push({

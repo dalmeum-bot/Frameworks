@@ -1,27 +1,33 @@
-function CommandHandler() {
+function CommandHandler()
+{
 	this.commands = [];
 	this.commandsDir = "";
 }
 
-CommandHandler.prototype = {
-	set(obj) {
+CommandHandler.prototype =
+{
+	set(obj)
+	{
 		this.commandsDir = obj.commandsDir || "";
 
 		var dir = new java.io.File("/sdcard/" + this.commandsDir);
+
 		dir.listFiles().forEach((command) => {
 			var r = require(command);
 			this.commands.push(r);
 		});
 	},
 
-	register(func) {
+	register(func)
+	{
 		this.commands.push(func(new Command()));
 	},
 
 	// addArgument(Number, ...) 해도 결국은 메시지는 String아님? Number에 전달될 수 있나
 	// Function(msg)로 하면 될듯? 근데 음
 
-	execute(message) {
+	execute(message)
+	{
 		if (!message.isCommand()) return; // command 아니면 나가
 
 		let room = [],
@@ -34,20 +40,27 @@ CommandHandler.prototype = {
 			chosen,
 			argList = [];
 
-		this.commands.forEach((cmd) => {
-			cmd.name.forEach((e) => {
-				if (e.constructor.name == "String") {
+		this.commands.forEach((cmd) =>
+		{
+			cmd.name.forEach((e) =>
+			{
+				if (e.constructor.name == "String")
+				{
 					command = e == message.command ? cmd : null;
 					return false;
-				} else if (e.constructor.name == "RegExp") {
+				}
+				else if (e.constructor.name == "RegExp")
+				{
 					command = e.test(message.command) ? cmd : null;
 					return false;
 				}
 			});
 		});
+
 		if (command == null) return; // 해당 command 없으면 나가
 
-		while (incommand.name != "execute" || incommand.name != "missing") {
+		while (incommand.name != "execute" || incommand.name != "missing")
+		{
 			description = incommand.description;
 			room = incommand.room;
 			staffOnly = incommand.staffOnly;
@@ -61,15 +74,21 @@ CommandHandler.prototype = {
 
 			// name check (regex | string)
 			var m;
-			chosen = incommand.arguments.find((e) => {
-				if (typeof e.name == "string") {
+			chosen = incommand.arguments.find((e) =>
+			{
+				if (typeof e.name == "string")
+				{
 					return e.name === message.args[argindex];
-				} else {
+				}
+				else
+				{
 					m = message.args[argindex].match(e.name);
 					return m.length != 0;
 				}
 			});
-			if (chosen != undefined) {
+
+			if (chosen != undefined)
+			{
 				incommand = chosen;
 				argList.push({
 					content: message.args[argindex],
