@@ -17,10 +17,12 @@ function Command()
 	this.description = new String();
 	this.usage = new String();
 	this.type = null;
-	this.room = new Array();
-	this.staffOnly = new Boolean();
-	this.canDM = new Boolean();
-	this.canGroupChat = new Boolean();
+	this.property = {
+		room = new Array(),
+		staffOnly = new Boolean(),
+		canDM = new Boolean(),
+		canGroupChat = new Boolean()
+	};
 	this.arguments = new Array();
 }
 
@@ -51,32 +53,33 @@ Command.prototype =
 
 	setRoom(room)
 	{
-		this.room = room;
+		this.property.room = room;
 
 		return this;
 	},
 
 	setStaffOnly(staffOnly)
 	{
-		this.staffOnly = staffOnly;
+		this.property.staffOnly = staffOnly;
 
 		return this;
 	},
 
 	setCanDM(canDM)
 	{
-		this.canDM = canDM;
+		this.property.canDM = canDM;
 
 		return this;
 	},
 
 	setCanGroupChat(canGroupChat)
 	{
-		this.canGroupChat = canGroupChat;
+		this.property.canGroupChat = canGroupChat;
 
 		return this;
 	},
 
+	// TODO name formatting
 	addArgument(name, func)
 	{
 		const inthis = func(new Command()
@@ -88,20 +91,24 @@ Command.prototype =
 			.setCanGroupChat(this.canGroupChat)
 		);
 
-		inthis.type = (name.constructor.name == "Function") ? name : name.constructor;
 		// NOTE type가 RegExp면 좀 곤란하지 않나... 나중에 inthis.type(arg) 할거거든? 아닌가?
+		inthis.type = (name.constructor.name == "Function") ? name : name.constructor;
 		
-		switch (name) {
+		switch (name)
+		{
 			case String: inthis.name = /(\S+)/; break;
 			case Number: inthis.name = /([+-]?\d+(?:\.\d+)?)/; break;
-			case Array: inthis.name = /([+-]?[a-zA-Zㄱ-힣0-9]+)(?:,([+-]?[a-zA-Zㄱ-힣0-9]+))*/; break; // TODO 각 요소 그룹화, 지금은 맨 앞/뒤만 그룹됨
-			default: inthis.name = (name.constructor.name == "Function") ? name.name : name.toString();
+
+			// TODO 각 요소 그룹화, 지금은 맨 앞/뒤만 그룹됨, <> | {} | [] | () | 또는 안 감싸도 인식하게 좀 부탁
+			case Array: inthis.name = /([+-]?[a-zA-Zㄱ-힣0-9]+)(?:,([+-]?[a-zA-Zㄱ-힣0-9]+))*/; break;
+
+			default: inthis.name = (name.constructor == Function) ? name.name : name.toString();
 		}
 
 		/* NOTE
-		이거 정규식이랑 arg랑 전부 매치되어야함, 일부만 매치되면 의미 없다 그거
-		대강 RegExp.test(arg) 말고, arg.match(RegExp)[0] == arg 로 전부 매치되는지 확인하면 될듯
-		RegExp.exec 같은 다른 함수들도 좀 찾아보셈
+			이거 정규식이랑 arg랑 전부 매치되어야함, 일부만 매치되면 의미 없다 그거
+			대강 RegExp.test(arg) 말고, arg.match(RegExp)[0] == arg 로 전부 매치되는지 확인하면 될듯
+			RegExp.exec 같은 다른 함수들도 좀 찾아보셈
 		*/
 
 		this.arguments.push(inthis);

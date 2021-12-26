@@ -10,12 +10,11 @@ CommandHandler.prototype =
 	{
 		this.commandsDir = obj.commandsDir || "";
 
-		var dir = new java.io.File("/sdcard/" + this.commandsDir);
-
-		dir.listFiles().forEach((command) => {
-			var r = require(command);
-			this.commands.push(r);
-		});
+		if (this.commandsDir != "")
+		{
+			var dir = new java.io.File("/sdcard/" + this.commandsDir);
+			dir.listFiles().forEach(path => this.commands.push(require(path)));
+		}
 	},
 
 	register(func)
@@ -23,67 +22,74 @@ CommandHandler.prototype =
 		this.commands.push(func(new Command()));
 	},
 
-	// addArgument(Number, ...) 해도 결국은 메시지는 String아님? Number에 전달될 수 있나
-	// Function(msg)로 하면 될듯? 근데 음
+	/* NOTE
+		addArgument(Number, ...) 해도 결국은 메시지는 String아님? Number에 전달될 수 있나
+		그래서 지금 Function에 따라 정규식 넣어놓기는 함 (String, Number, Array(아직))
+		Function(msg)로 하면 될듯? 근데 음 
+	*/
 
-	execute(message)
+	execute(msg)
 	{
-		if (!message.isCommand()) return; // command 아니면 나가
+		if (!msg.isCommand()) return; // command 아니면 나가
 
-		let room = [],
-			staffOnly = false,
-			canDM = false,
-			canGroupChat = true,
-			argindex = 0,
-			command = null,
-			incommand = command,
-			chosen,
-			argList = [];
+		var command;
+		var property = {
+			room: [],
+			staffOnly: false,
+			canDM: false,
+			canGroupChat: false
+		};
 
-		this.commands.forEach((cmd) =>
-		{
-			cmd.name.forEach((e) =>
-			{
-				if (e.constructor.name == "String")
-				{
-					command = e == message.command ? cmd : null;
-					return false;
+		// 명령어 검색
+		// TODO Array.find로 나중에 바꾸자
+		totalCommandsLoop:
+		for (let i = 0; i < this.commands.length; i++) {
+			for (let j = 0; j < this.commands[i].name; j++) {
+				let commandName = this.commands[i].name[j];
+
+				if (commandName.constructor == String) {
+					command = ((commandName == msg.command) ? cmd : null);
+					break totalCommandsLoop;
 				}
-				else if (e.constructor.name == "RegExp")
-				{
-					command = e.test(message.command) ? cmd : null;
-					return false;
+				else if (commandName.constructor == RegExp) {
+					command = ((commandName.test(msg.command)) ? cmd : null);
+					break totalCommandsLoop;
 				}
-			});
-		});
+			}
+		}
 
-		if (command == null) return; // 해당 command 없으면 나가
+		if (command == null) return; // 맞는 명령어 없으면 나가
 
+		var argIdx = 0,
+				argList = [],
+				incommand = command,
+				chosen;
+
+		commandSearching:
 		while (incommand.name != "execute" || incommand.name != "missing")
 		{
-			description = incommand.description;
-			room = incommand.room;
-			staffOnly = incommand.staffOnly;
-			canDM = incommand.canDM;
-			canGroupChat = incommand.canGroupChat;
+			property.room = incommand.property.room || property.room;
+			property.staffOnly = incommand.property.staffOnly || property.staffOnly;
+			property.canDM = incommand.property.canDM || property.canDM;
+			property.canGroupChat = incommand.property.canGroupChat || property.canGroupChat;
 
-			if (room.length != 0 && !room.includes(message.room.name)) return; // 해당 방 아니면 나가
-			if (staffOnly == true && message.author.isStaff == false) return; // staffOnly에 안 맞으면 나가
-			if (canDM == false && message.room.isDM == true) return; // canDM에 안 맞으면 나가
-			if (canGroupChat == false && message.room.isGroupChat == true) return; // canGroupChat에 안 맞으면 나가
+			if (property.room.length != 0 && !property.room.includes(msg.room.name)) return; // 해당 방 아니면 나가
+			if (property.staffOnly == true && msg.author.isStaff == false) return; // staffOnly에 안 맞으면 나가
+			if (property.canDM == false && msg.room.isDM == true) return; // canDM에 안 맞으면 나가
+			if (property.canGroupChat == false && msg.room.isGroupChat == true) return; // canGroupChat에 안 맞으면 나가
 
 			// name check (regex | string)
-			var m;
-			chosen = incommand.arguments.find((e) =>
+			var matched;
+			chosen = incommand.arguments.find(cmd =>
 			{
-				if (typeof e.name == "string")
-				{
-					return e.name === message.args[argindex];
-				}
-				else
-				{
-					m = message.args[argindex].match(e.name);
-					return m.length != 0;
+				for (let i = 0; i < cmd.name; i++) {
+					if (cmd.name[i].constructor == String) {
+						return cmd.name[i] === msg.args[argIdx];
+					}
+					else if (cmd.name[i].constructor == RegExp) {
+						matched = msg.args[argIdx].match(cmd.name[i]);
+						return matched.length !== 0;
+					}
 				}
 			});
 
@@ -91,46 +97,46 @@ CommandHandler.prototype =
 			{
 				incommand = chosen;
 				argList.push({
-					content: message.args[argindex],
-					group: typeof e.name == "string" ? [] : m.slice(1),
+					content: msg.args[argIdx],
+					group: (matched.length === 0) ? [] : matched.slice(1),
 				});
-				argindex++;
-				continue;
+				argIdx++;
+				continue commandSearching;
 			}
 
 			// type check
-			chosen = incommand.arguments.find((e) => typeof e.name == "Function" && e.name(message.args[argindex]).constructor == e.name);
+			chosen = incommand.arguments.find(e => e.type(msg.args[argIdx]).constructor == e.type);
 			if (chosen != undefined) {
 				incommand = chosen;
 				argList.push({
-					content: message.args[argindex],
+					content: msg.args[argIdx],
 					group: [],
 				});
-				argindex++;
-				continue;
+				argIdx++;
+				continue commandSearching;
 			}
 
 			// missing check
-			chosen = incommand.arguments.find((e) => e.name === "missing");
+			chosen = incommand.arguments.find(e => e.name === "missing");
 			if (chosen != undefined) {
 				incommand = chosen;
-				continue;
+				continue commandSearching;
 			}
 
 			// error print
 			else {
-				return new CommandArgsError(message.args.slice(0, argindex + 1).join(">") + "command is not exist.");
+				return new CommandArgsError(msg.args.slice(0, argIdx + 1).join(">") + "command is not exist.");
 			}
 		}
 
 		switch (incommand.type) {
 			case "Number":
-			case "string":
+			case "String":
 				return incommand.func;
 			case "Array":
 				return incommand.func[Math.floor(Math.random() * incommand.func.length)];
 			case "Function":
-				return incommand.func(message, argList);
+				return incommand.func(msg, argList);
 		}
 	},
 };
