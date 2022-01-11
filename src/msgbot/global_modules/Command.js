@@ -99,9 +99,6 @@ Command.prototype =
 			case String: inthis.name = /(\S+)/; break;
 			case Number: inthis.name = /([+-]?\d+(?:\.\d+)?)/; break;
 
-			// TODO 각 요소 그룹화, 지금은 맨 앞/뒤만 그룹됨, <> | {} | [] | () | 또는 안 감싸도 인식하게 좀 부탁
-			case Array: inthis.name = /([+-]?[a-zA-Zㄱ-힣0-9]+)(?:,([+-]?[a-zA-Zㄱ-힣0-9]+))*/; break;
-
 			default: inthis.name = (name.constructor == Function) ? name.name : name.toString();
 		}
 
