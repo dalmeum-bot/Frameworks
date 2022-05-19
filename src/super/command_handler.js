@@ -176,7 +176,9 @@ botCommand.prototype = {
      * @example new botCommand().setConfigs({ config1: true, config2: false, ... etc })
      */
     setConfigs: function(configs) {
-        this.configs = configs;
+        for (let i in configs) {
+            this.configs[i] = configs[i];
+        }
 
         return this;
     },
@@ -264,7 +266,7 @@ COMMANDS.register([
 console.log(COMMANDS.execute({
     args: ['1', '2', '3'],
     command: 'add',
-    room: 'dev2',
+    room: 'dev',
     isGroupChat: true,
     isDebugRoom: false,
     level: 4
