@@ -241,10 +241,21 @@ botCommand.prototype = {
     }
 };
 
+for (let config in COMMANDS.configFunctions) {
+    Object.defineProperty(botCommand.prototype, 'set' + config[0].toUpperCase() + config.slice(1), {
+        value: function(e) {
+            this.configs[config] = e;
+    
+            return this;
+        }
+    });
+}   // todo
+
 COMMANDS.makeConfig('allowLevel', (msg, value) => (msg.level || 0) >= value);
 COMMANDS.register([
     add => new botCommand('add', 'plus')
-        .setConfigs({ activateRooms: ['dev'], canDM: false, canGroupChat: true, allowLevel: 4 })
+        .setActivateRooms(['dev'])
+        .setConfigs({ canDM: false, canGroupChat: true, allowLevel: 4 })
 
         .addArguments(Number, numbers => new botCommand()
             .run(msg => numbers.reduce((acc, curr) => acc + curr))
@@ -253,10 +264,10 @@ COMMANDS.register([
 console.log(COMMANDS.execute({
     args: ['1', '2', '3'],
     command: 'add',
-    room: 'dev',
+    room: 'dev2',
     isGroupChat: true,
     isDebugRoom: false,
-    level: 3
+    level: 4
 }));
 
 // module.exports = {
