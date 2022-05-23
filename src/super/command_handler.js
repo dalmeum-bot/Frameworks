@@ -1,7 +1,9 @@
-/** Super Command Handler
+/** Super Command Handler 2022.05.07 ~ 2022.05.15
  * @author Rhseung
- * @version alpha: 2022.05.07 ~ 2022.05.15
+ * @version 1.0
  */
+
+// todo kaling 포함
 
 const isConstructor = (f) => {
     try {
