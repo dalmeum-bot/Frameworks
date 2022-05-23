@@ -251,13 +251,14 @@ for (let config in COMMANDS.configFunctions) {
             return this;
         }
     });
-}   // todo
+}
 
 COMMANDS.makeConfig('allowLevel', (msg, value) => (msg.level || 0) >= value);
 COMMANDS.register([
     add => new botCommand('add', 'plus')
         .setActivateRooms(['dev'])
-        .setConfigs({ canDM: false, canGroupChat: true, allowLevel: 4 })
+        .setCanDM(false)
+        .setConfigs({ canGroupChat: true, allowLevel: 4 })
 
         .addArguments(Number, numbers => new botCommand()
             .run(msg => numbers.reduce((acc, curr) => acc + curr))
@@ -267,8 +268,8 @@ console.log(COMMANDS.execute({
     args: ['1', '2', '3'],
     command: 'add',
     room: 'dev',
-    isGroupChat: true,
-    isDebugRoom: false,
+    isGroupChat: false,
+    isDebugRoom: true,
     level: 4
 }));
 
