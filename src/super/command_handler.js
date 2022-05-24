@@ -20,6 +20,7 @@ const runAccordingType = (e, msg) => {
     switch (e.constructor) {
         case String:
         case Number:
+        case botKaling:
             return e;
         case Array:
             let idx = Math.floor(Math.random() * (e.length-1));
@@ -45,17 +46,17 @@ var COMMANDS = {
         activateRooms: (msg, value) => value.includes(msg.room) && value.length != 0
     },
 
-    register: function() {
+    register() {
         COMMANDS._ = COMMANDS._.concat(
             (arguments[0].constructor == Array) ? arguments[0] : Array.from(arguments)
         );
     },
 
-    makeConfig: (configname, func) => {
+    makeConfig(configname, func) {
         COMMANDS.configFunctions[configname] = func;
     },
 
-    isSatisfied: (msg, configs) => {
+    isSatisfied(msg, configs) {
         for (configName in configs) {
             if (COMMANDS.configFunctions[configName](msg, configs[configName]) == false) {
                 return false;
@@ -64,7 +65,7 @@ var COMMANDS = {
         return true;
     },
 
-    execute: (msg) => {
+    execute(msg) {
         var arguments = msg.args;
 
         // 첫 명령어 검색
@@ -157,7 +158,7 @@ botCommand.prototype = {
      * @param {String[]} aliases
      * @example new botCommand().setName('name1', 'name2', 'name3', ... etc);
      */
-    setName: function() {
+    setName() {
         this.name = Array.from(arguments);
 
         return this;
@@ -167,7 +168,7 @@ botCommand.prototype = {
      * @param {String} description 
      * @example new botCommand().setDescription('description')
      */
-    setDescription: function(description) {
+    setDescription(description) {
         this.description = description;
 
         return this;
@@ -177,7 +178,7 @@ botCommand.prototype = {
      * @param {Object} configs 
      * @example new botCommand().setConfigs({ config1: true, config2: false, ... etc })
      */
-    setConfigs: function(configs) {
+    setConfigs(configs) {
         for (let i in configs) {
             this.configs[i] = configs[i];
         }
@@ -191,7 +192,7 @@ botCommand.prototype = {
      * @example new botCommand().addArgument(String, argname => new botCommand().addArgument(... etc) ... etc)
      * @example new botCommand().addArgument(msg => msg.author.name.startsWith("@"), username => new botCommand().addArgument(... etc) ... etc)
      */
-    addArgument: function(match, subcommand) {
+    addArgument(match, subcommand) {
         this.matchf = match;
 
         // subcommand().description = subcommand().description || this.description;
@@ -206,7 +207,7 @@ botCommand.prototype = {
      * @param {botCommand} endcommand 
      * @example new botCommand().addArguments(Number, numbers => new botCommand().run(... etc) ... etc)
      */
-    addArguments: function(match, endcommand) {
+    addArguments(match, endcommand) {
         this.matchf = match;
         this.isGrouped = true;
 
@@ -237,7 +238,7 @@ botCommand.prototype = {
      * @example new botCommand().run([1, [2, [msg => msg.reply(3), "4"]], 5])
      * @example new botCommand().run(msg => msg.reply("hello world"))
      */
-    run: function(e) {
+    run(e) {
         this.runcode = e;
         // todo run(a, b, c, d, e, f, ...)
 
@@ -247,7 +248,7 @@ botCommand.prototype = {
 
 for (let config in COMMANDS.configFunctions) {
     Object.defineProperty(botCommand.prototype, 'set' + config[0].toUpperCase() + config.slice(1), {
-        value: function(e) {
+        value(e) {
             this.configs[config] = e;
     
             return this;
@@ -255,17 +256,35 @@ for (let config in COMMANDS.configFunctions) {
     });
 }
 
+function botKaling() {
+
+}
+
+botKaling.prototype = {
+    title(title) {
+
+    },
+
+    addArguments(arguments) {
+
+    }
+};
+
 COMMANDS.makeConfig('allowLevel', (msg, value) => (msg.level || 0) >= value);
 COMMANDS.register([
     add => new botCommand('add', 'plus')
         .setActivateRooms(['dev'])
         .setCanDM(false)
-        .setConfigs({ canGroupChat: true, allowLevel: 4 })
+        .setAllowLevel(4)
 
         .addArguments(Number, numbers => new botCommand()
-            .run(msg => numbers.reduce((acc, curr) => acc + curr))
+            .run(new botKaling()
+                .title('hehe')
+                .addArgument()
+            )
         )
 ]);
+
 console.log(COMMANDS.execute({
     args: ['1', '2', '3'],
     command: 'add',
