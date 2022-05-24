@@ -1,4 +1,4 @@
-# modules
+## kbot-modules
 
 #### [Simple Command Handler](src/simple) v1.0
 > javascript의 함수를 이용한 간단한 명령어 모듈입니다.
