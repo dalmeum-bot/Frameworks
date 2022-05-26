@@ -294,7 +294,7 @@ console.log(COMMANDS.execute({
     level: 4
 }));
 
-// module.exports = {
-//     botCommand: botCommand,
-//     COMMANDS: COMMANDS
-// };
+module.exports = {
+    botCommand: botCommand,
+    COMMANDS: COMMANDS
+};
