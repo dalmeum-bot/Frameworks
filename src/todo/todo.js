@@ -44,12 +44,14 @@ const teachers = {
  * worksheet.status
  */
 class Worksheet {
-    constructor(teacher, name, amount) {
+    constructor(teacher, sheetname, amount) {
         this.teacher = teachers[teacher];
-        this.name = name;
+        this.sheetname = sheetname;
+
         this.amount = amount;
-        this.stat = name.includes('개념') ? status.STUDY : status.SOLVE;
+        this.stat = sheetname.includes('개념') ? status.STUDY : status.SOLVE;
         this.progress = 0;
+        
         this.done = false;
     }
 
@@ -93,11 +95,11 @@ class Worksheet {
 
 class Worksheets {
     constructor() {
-        this._ = new Map();
+        this._ = [];
     }
 
-    set(key, value) {
-        this._.set(key, value);
+    set(value) {
+        this._.push(value);
     }
 
     renew(key, amount) {
@@ -107,25 +109,6 @@ class Worksheets {
 }
 
 var worksheets = new Worksheets();
-
-// 유인물 등록 김주형 [9장.고차방정식과 연립방정식] 210p
-COMMANDS.register(worksheet_cmd => new botCommand('활동지', '유인물')
-    .addArgument(String, register_cmd => new botCommand('등록')
-        .addArgument(String, teacher_name => new botCommand()
-            .addArgument(e => /\[.*?\]/.test(e), sheet_name => new botCommand()
-                .addArgument(Number, amount => new botCommand()
-                    .run(msg => {
-                        if (teachers[teacher_name] == null) throw 'not found teacher';
-
-                        worksheets.set(
-                            teachers[teacher_name], 
-                            new Worksheet(sheet_name.slice(1, sheet_name.length-1), teacher_name, amount)
-                        );
-                    })
-                )
-            )
-        )
-    )
-    .addArgument(String, process => new botCommand('갱신')
-    )
-)
+a = new Worksheet(teachers.김주형, '9. 부정방정식과 부등식', 42);
+worksheets.set(a);
+console.log();

@@ -2,6 +2,25 @@
 - MIT License
 - API2 Only  
 
-커스터마이징이 포함된 feature가 많은 명령어 모듈입니다.
+## example
+예시코드는 [example code](example.js)를 확인하세요.
 
-## turns
+## migration
+```js
+// 모듈 설치 위치
+msgbot
+  └── global_modules
+    └── command_handler.js
+```
+
+```js
+// 모듈 불러오기
+var { COMMANDS, botCommand } = require('command_handler.js')
+```
+
+## how to use?
+
+### COMMANDS
+
+COMMANDS.register(...cmd: botCommand)  
+COMMANDS.register([...cmd]: botCommand[])
