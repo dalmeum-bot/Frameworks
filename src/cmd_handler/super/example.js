@@ -15,7 +15,8 @@ bot.setCommandPrefix("/");
 bot.addListener(Event.COMMAND, onCommand);
 
 var pingCmd = ping => new botCommand('ping')
-.setDescription('ping command')
-.setConfigs({ activateRooms: ['dev'], canDM: true, canGroupChat: true })
+    .setDescription('ping command')
+    .setActivateRooms(['dev'])
+    .setConfigs({ canDM: true, canGroupChat: true })
 
-.run('pong');
+    .run('pong');
