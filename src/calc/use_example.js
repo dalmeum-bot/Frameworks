@@ -12,9 +12,8 @@ formula.calculate({ toApprox: true })
 >> "10.166666..."
 
 formula.register(
-    combination,
     factorial,
-    gcd,
+    gcd,    
     lcm
 );
 
@@ -23,10 +22,17 @@ factorial = new Operator(
     'factorial',
     PRIOR.MUL,
     Direction.RIGHT,
-    a => a == 0 ? 1 : a * factorial(a - 1)
+    factorial
 );
-factorial = a => a == 0 ? 1 : a * factorial(a - 1);
-combination = (a, b) => factorial(a) / (factorial(b) * factorial(a - b));
 
-gcd = (a, b) => (!b) ? 1 : gcd(b, a % b);
-lcm = (a, b) => (a * b) / gcd(a, b);
+function factorial(a) {
+    return (a < 0) ? Infinity : (a == 0) ? 1 : a * factorial(a - 1);
+}
+
+function gcd(a, b) {
+    return (!b) ? a : gcd(b, a % b);
+}
+
+function lcm(a, b) {
+    return (a * b) / gcd(a, b);
+}

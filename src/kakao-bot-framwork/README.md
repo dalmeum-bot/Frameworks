@@ -7,14 +7,14 @@
 
 ## migration
 ```js
-// 모듈 설치 위치
+// install at
 msgbot
   └── global_modules
     └── command_handler.js
 ```
 
 ```js
-// 모듈 불러오기
+// load files
 var { COMMANDS, botCommand } = require('command_handler.js')
 ```
 
